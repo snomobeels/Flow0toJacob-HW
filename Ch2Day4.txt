@@ -1,0 +1,62 @@
+0x02
+----
+pub contract testpro2 {
+
+pub var projects: {String: flowProject}
+
+  pub struct flowProject {
+      
+      pub let projName: String
+      pub var website: String
+      pub var modName: String
+      pub let projType: String
+
+      init(_proj: String, _web: String, _mod: String, _projectType: String) {
+        self.projName = _proj
+        self.website = _web
+        self.modName = _mod
+        self.projType = _projectType
+    }
+}
+
+      pub fun addProject(projName: String, website: String, modName: String, projType: String) {
+       var newProject = flowProject(_proj: projName, _web: website, _mod: modName, _projectType: projType)
+       self.projects[projName]=newProject;
+    }
+
+  init() {
+  self.projects ={}
+  }
+
+}
+
+
+Transaction
+-----
+import testpro2 from 0x02
+
+transaction(projName:String, website:String, modName: String, projType:String) {
+
+    prepare(signer: AuthAccount) {}
+
+    execute {
+
+      testpro2.addProject(projName:projName, website:website, modName:modName, projType:projType)
+      log("We're Done")
+
+	//I realized after the fact that the reason there's a log message is because it's hard to tell if the transaction otherwise goes through
+    }
+}
+
+Script
+----
+import testpro2 from 0x02
+
+pub fun main(projName: String): testpro2.flowProject {
+  
+   return testpro2.projects[projName]!
+
+}
+
+
+

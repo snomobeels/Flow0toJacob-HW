@@ -1,0 +1,48 @@
+Ch2 Day3
+
+1)
+
+Script
+---
+pub fun main() {
+  
+    var favPeople: [String] = ["Phil", "Kylie", "Joe"]
+
+    log(favPeople[0])
+    log(favPeople[1])
+    log(favPeople[2])
+    
+}
+
+2)
+
+Script
+---
+
+pub fun main() {
+  
+    var socmed: {String: Int} = {"Twitter": 1, "YouTube": 2, "Instagram": 3,  "Reddit": 4, "Facebook": 5, "LinkedIn": 6}
+
+    log(socmed["Twitter"])
+    log(socmed["YouTube"])    
+    log(socmed["Instagram"])    
+    log(socmed["Reddit"])    
+    log(socmed["Facebook"])
+    log(socmed["LinkedIn"])
+}
+
+3) There exists something called an optional which allows for nil values or the actual type. This can cause problems. What the force unwrap does is make sure that if it encounters a nil, processing will abort. But if there exists a usable type it will remove the optional and use that value. This is important in the context of values returned from a dictionary, which are returned as optionals, and thus must be unwrapped.
+
+
+pub fun main() {
+  
+let testFruit: String? = "Apple"
+let unwrappedFruit: String = testFruit! 
+
+log(testFruit)
+log(unwrappedFruit)
+
+}
+
+
+4) The value returned was an optional (of String and nil) and as a result they are mismatched types. Fix it by using a force unwrap at the end and adding an exclamation point after 'return thing[0x03]
