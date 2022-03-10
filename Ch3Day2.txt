@@ -1,0 +1,48 @@
+Write your own smart contract that contains two state variables: an array of resources, and a dictionary of resources. Add functions to remove and add to each of them. They must be different from the examples above.
+----
+
+under 0x05
+---
+pub contract Biblio {
+
+    pub var arrayBooks: @[Book]
+    pub var dictionaryBooks: @{Int: Book}
+
+    pub resource Book {
+
+        pub let title: String
+        pub let isbn: Int
+        init() {
+            self.title = "Where the red fern grows"
+            self.isbn=12345
+        }
+    }
+
+    pub fun addBook(book: @Book) {
+        self.arrayBooks.append(<- book)
+    }
+
+    pub fun removeBook(index: Int): @Book {
+        return <- self.arrayBooks.remove(at: index)
+    }
+
+    pub fun addPairedBook(book: @Book) {
+        let key = book.isbn
+        //self.dictionaryBooks[key] <-! book
+
+        let oldBook <- self.dictionaryBooks[key] <- book
+        destroy oldBook
+    }
+
+    pub fun removePairedBook(key: Int): @Book {
+        let book <- self.dictionaryBooks.remove(key: key) ?? panic("Book not found")
+        return <- book
+    }
+
+
+   init() {
+        self.arrayBooks <- []
+        self.dictionaryBooks <- {}
+    }
+
+}

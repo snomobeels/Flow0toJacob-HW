@@ -1,0 +1,103 @@
+1) Explain, in your own words, the 2 things resource interfaces can be used for (we went over both in today's content)
+
+It's used to make sure that the resource conforms to the requirements of the interface and can also establish access control to the resource (or even more so).
+
+2) Define your own contract. Make your own resource interface and a resource that implements the interface. Create 2 functions. In the 1st function, show an example of not restricting the type of the resource and accessing its content. In the 2nd function, show an example of restricting the type of the resource and NOT being able to access its content.
+
+under 0x03
+----
+pub contract DrinkShop {
+
+  pub resource interface Shop {
+      pub let tea: String
+      pub let price: Int
+  }
+
+  pub resource TeaShop: Shop {
+      pub let tea: String
+      pub let cost: Int
+      pub let price: Int
+
+      init() {
+      self.tea="Green"
+      self.price=5
+      self.cost=3
+      }
+  }
+
+    pub fun createShop(): @TeaShop {
+        return <- create TeaShop()
+    }
+
+    pub fun createRestrictShop(): @TeaShop{Shop} {
+        return <- create TeaShop()
+    }
+
+}
+
+
+Transaction
+-----
+import DrinkShop from 0x03
+
+transaction {
+
+  prepare(acct: AuthAccount) {}
+
+  execute {
+    //show
+    let teashop  <- DrinkShop.createShop()
+    log(teashop.tea)
+    log(teashop.price)
+    log(teashop.cost)
+    destroy teashop
+    //restrict
+    let myteashop  <- DrinkShop.createRestrictShop()
+    log(myteashop.tea)
+    log(myteashop.price)
+    //log(myteashop.cost) - this line now viewable
+    destroy myteashop
+
+
+  }
+}
+
+
+
+3) How would we fix this code?
+A - either add favourite fruit to the struct or remove it from the interface (the reason it does not conform is because it doesn't have that variable). If you add it, initialize in the init function. 
+B - you can expose the function into the interface by adding the line       pub fun changeGreeting(newGreeting: String): String in the interface, or also remove the forcing of the struct interface
+
+pub contract Stuff {
+
+    pub struct interface ITest {
+      pub var greeting: String
+      pub var favouriteFruit: String //A
+
+      pub fun changeGreeting(newGreeting: String): String //B
+    }
+
+    // ERROR:
+    // `structure Stuff.Test does not conform 
+    // to structure interface Stuff.ITest`
+    pub struct Test: ITest {
+      pub var greeting: String
+      pub var favouriteFruit: String //A
+
+      pub fun changeGreeting(newGreeting: String): String {
+        self.greeting = newGreeting
+        return self.greeting // returns the new greeting
+      }
+
+      init() {
+        self.greeting = "Hello!"
+        self.favouriteFruit = "Apple" //A
+      }
+    }
+
+    pub fun fixThis() {
+      let test: Test{ITest} = Test() //B
+      let newGreeting = test.changeGreeting(newGreeting: "Bonjour!") // ERROR HERE: `member of restricted type is not accessible: changeGreeting`
+      log(newGreeting)
+    }
+}

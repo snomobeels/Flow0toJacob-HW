@@ -1,0 +1,108 @@
+1) Explain what lives inside of an account.
+
+Contract code (the contracts that have been interacted with) and account storage
+
+2) What is the difference between the /storage/, /public/, and /private/ paths?
+
+Storage - where things are actually stored, and can only be accessed in the prepare phase of a transaction through AuthAccount
+Public - looks at storage and can be accessed by anyone, anywhere
+Private - looks at storage but user controls access/who can view
+
+3) What does .save() do? What does .load() do? What does .borrow() do?
+.save() moves a resource into account storage, under the storage resource path
+.load() takes data data out of account storage
+.borrow() is used with references to look in storage, but not take anything out
+
+4) Explain why we couldn't save something to our account storage inside of a script.
+
+Because the user has to authorize the transaction through the prepare phase. 
+
+5) Explain why I couldn't save something to your account.
+
+Save only interacts with /storage/ and only the account owner can access that area.
+
+6) Define a contract that returns a resource that has at least 1 field in it. Then, write 2 transactions:
+
+0x02
+---
+pub contract DrinkShop {
+
+  pub resource interface Shop {
+      pub let tea: String
+      pub let price: Int
+  }
+
+  pub resource TeaShop: Shop {
+      pub let tea: String
+      pub let cost: Int
+      pub let price: Int
+
+      init() {
+      self.tea="Green"
+      self.price=5
+      self.cost=3
+      }
+  }
+
+    pub fun createShop(): @TeaShop {
+        return <- create TeaShop()
+    }
+
+    pub fun createRestrictShop(): @TeaShop{Shop} {
+        return <- create TeaShop()
+    }
+
+}
+
+
+i. A transaction that first saves the resource to account storage, then loads it out of account storage, logs a field inside the resource, and destroys it.
+
+transaction
+-------
+import DrinkShop from 0x02
+
+transaction {
+
+  prepare(acct: AuthAccount) {
+   let teashop  <- DrinkShop.createShop()
+   log(teashop.cost)
+   acct.save(<- teashop, to: /storage/MyTeaShop) 
+    //saved to /storage/MyTeaShop
+ 
+    let loadteashop <- acct.load<@DrinkShop.TeaShop>(from: /storage/MyTeaShop) ?? panic("A .tea resource does not live here.")
+    log(loadteashop.tea) 
+
+    destroy loadteashop
+
+  }
+
+  execute {
+    //show
+   
+  }
+}
+
+
+ii. A transaction that first saves the resource to account storage, then borrows a reference to it, and logs a field inside the resource.
+
+import DrinkShop from 0x02
+
+transaction {
+
+  prepare(acct: AuthAccount) {
+   let teashop  <- DrinkShop.createShop()
+   log(teashop.cost)
+   acct.save(<- teashop, to: /storage/MyTeaShop) 
+    //saved to /storage/MyTeaShop
+ 
+    let loadteashop = acct.borrow<&DrinkShop.TeaShop>(from: /storage/MyTeaShop) ?? panic("A .tea resource does not live here.")
+    log(loadteashop.tea) 
+
+  }
+
+  execute {
+    //show
+   
+  }
+}
+
