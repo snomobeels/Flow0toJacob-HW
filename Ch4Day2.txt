@@ -1,0 +1,90 @@
+1) What does .link() do?
+
+It allows people who have/are granted acccess the ability to read resources in a user's storage.
+
+2) In your own words (no code), explain how we can use resource interfaces to only expose certain things to the /public/ path.
+
+Use the resource interface to control what's included in a resource, and if you restrict the link to that resource interface, it won't allow access to anything not included in it.
+
+3) Deploy a contract that contains a resource that implements a resource interface. Then, do the following:
+
+0x02
+----
+pub contract DrinkShop {
+
+  pub resource interface Shop {
+      pub let tea: String
+      pub let price: Int
+  }
+
+  pub resource TeaShop: Shop {
+      pub let tea: String
+      pub let price: Int
+
+      pub let hiddenItem: String
+
+      init() {
+      self.tea="Green"
+      self.price=5
+      self.hiddenItem="Matcha Mochi"
+      }
+  }
+
+    pub fun createShop(): @TeaShop {
+        return <- create TeaShop()
+    }
+
+    pub fun createRestrictShop(): @TeaShop{Shop} {
+        return <- create TeaShop()
+    }
+
+}
+
+
+In a transaction, save the resource to storage and link it to the public with the restrictive interface.
+
+Transaction
+----
+import DrinkShop from 0x02
+
+transaction {
+
+  prepare(acct: AuthAccount) {
+   let teashop  <- DrinkShop.createShop()
+   acct.save(<- teashop, to: /storage/MyTeaShop) 
+    //saved to /storage/MyTeaShop
+ 
+    acct.link<&DrinkShop.TeaShop{DrinkShop.Shop}>(/public/MyTeaShop, target: /storage/MyTeaShop)
+   
+    //let loadteashop = acct.borrow<&DrinkShop.TeaShop>(from: /storage/MyTeaShop) ?? panic("A tea-source does not live here.")
+    //log(loadteashop.tea) 
+
+  }
+
+  execute {
+    //show
+   
+  }
+}
+
+
+
+Run a script that tries to access a non-exposed field in the resource interface, and see the error pop up.
+Run the script and access something you CAN read from. Return it from the script.
+
+
+script
+-------
+import DrinkShop from 0x02
+
+pub fun main(address: Address): String {
+
+  let publicCapability: Capability<&DrinkShop.TeaShop{DrinkShop.Shop}> =
+    getAccount(address).getCapability<&DrinkShop.TeaShop{DrinkShop.Shop}>(/public/MyTeaShop)
+
+  let testResource: &DrinkShop.TeaShop{DrinkShop.Shop} = publicCapability.borrow() ?? panic("The capability doesn't exist or you did not specify the right type when you got the capability.")
+
+  //log(testResource.hiddenItem)
+  log(testResource.price)
+  return testResource.tea
+}
