@@ -1,0 +1,127 @@
+1. Describe what an event is, and why it might be useful to a client.
+
+It's a way for a smart contract to communicate that something has happened. Can be useful if certain events happen because the smart contract itself will communicate that versus needing to take resources to check the contract itself constantly. 
+
+2. Deploy a contract with an event in it, and emit the event somewhere else in the contract indicating that it happened.
+3. Using the contract in step 2), add some pre conditions and post conditions to your contract to get used to writing them out.
+
+0x04
+----
+pub contract TestResults {
+
+  pub var counter: Int
+  pub var testScores: {Int: Int}
+
+  pub event ScoreLogged (count: Int)
+
+  pub fun sumTest (x: Int, y: Int): Int {
+    post {
+      result > 0: "Total Score above 100"
+    }
+    return x + y
+  }
+
+   init () {
+    self.counter=0
+    self.testScores={}
+   }
+
+  pub fun addScores (Score1: Int, Score2: Int) {
+    
+    pre {
+      Score1 >0: "Score cannot be 0"
+      Score2 >0: "Score cannot be 0"
+    }
+
+    post {
+      Score1 + Score2 <= 100: "Total Score above 100"
+    }
+
+   self.testScores[self.counter] = Score1 + Score2 
+   self.counter=self.counter+1
+  
+   emit ScoreLogged (count: self.counter)
+   log(self.counter)
+  }
+
+}
+
+
+
+Transaction
+-----
+import TestResults from 0x04
+
+transaction {
+
+  prepare(acct: AuthAccount) {}
+
+  execute {
+    
+    TestResults.addScores (Score1: 0, Score2: 59)
+
+
+  }
+}
+
+
+
+4. For each of the functions below (numberOne, numberTwo, numberThree), follow the instructions.
+
+
+
+
+pub contract Test {
+
+  // TODO 
+  // Tell me whether or not this function will log the name.
+  // name: 'Jacob'
+
+  //YES - the name is 5 characters and will meet the condition
+  pub fun numberOne(name: String) {
+    pre {
+      name.length == 5: "This name is not cool enough."
+    }
+    log(name)
+  }
+
+  // TODO
+  // Tell me whether or not this function will return a value.
+  // name: 'Jacob'
+
+  //Yes - the name you pass in has a length greater than 0 and the result will be Jacob Tucker after you concatenate it, makings ure the
+  pub fun numberTwo(name: String): String {
+    pre {
+      name.length >= 0: "You must input a valid name."
+    }
+    post {
+      result == "Jacob Tucker"
+    }
+    return name.concat(" Tucker")
+  }
+
+  pub resource TestResource {
+    pub var number: Int
+
+    // TODO
+    // Tell me whether or not this function will log the updated number.
+    // Also, tell me the value of `self.number` after it's run.
+
+
+    //No it won't log the updated number. Self.number is set to 0 so that's what the before(self.number) is set to. Self.number is set to self.number+1 which means that it will try to return a 1. But in the post comparison it's saying that it will be met if 0  == 2, and therefore it will panic
+
+    pub fun numberThree(): Int {
+      post {
+        before(self.number) == result + 1
+      }
+      self.number = self.number + 1
+      return self.number
+    }
+
+    init() {
+      self.number = 0
+    }
+
+  }
+
+}

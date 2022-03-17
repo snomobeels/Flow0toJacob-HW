@@ -1,0 +1,68 @@
+1. Explain why standards can be benefitial to the Flow ecosystem.
+
+Note that there's a typo above - should be "beneficial".
+
+Standards are good because they make sure that certain resources/contracts have certain requirements built into them as well as features so that users and others who interact with them know what to expect. They also make it so that there is consistency in how certain things work - i.e. NFTs having the total supply exlicitly identified. 
+
+
+2. What is YOUR favourite food? 
+
+Hamburgers!
+
+3. 
+
+pub contract interface ITest {
+  pub var number: Int
+  
+  pub fun updateNumber(newNumber: Int) {
+    pre {
+      newNumber >= 0: "We don't like negative numbers for some reason. We're mean."
+    }
+    post {
+      self.number == newNumber: "Didn't update the number to be the new number."
+    }
+  }
+
+  pub resource interface IStuff {
+    pub var favouriteActivity: String
+  }
+
+  pub resource Stuff {
+    pub var favouriteActivity: String
+  }
+}
+
+
+
+//implementing contract doesn't actually use the vcontract interface
+
+
+//pub contract Test {
+pub contract Test: ITest {
+  pub var number: Int
+  
+  //this wouldn't otherwise update the number
+  pub fun updateNumber(newNumber: Int) {
+   //self.number = 5
+   self.number=newNumber
+
+ }
+
+  pub resource interface IStuff {
+    pub var favouriteActivity: String
+  }
+
+//this cannot refer to the regular IStuff but should refer to ITest.IStuff
+// pub resource Stuff: IStuff {
+ pub resource Stuff: Itest.IStuff {
+    pub var favouriteActivity: String
+
+    init() {
+      self.favouriteActivity = "Playing League of Legends."
+    }
+  }
+
+  init() {
+    self.number = 0
+  }
+}
