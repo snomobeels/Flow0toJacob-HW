@@ -5,8 +5,8 @@ It downcasts by forcing a value to a more specific/original type. It can be usef
 2. What does auth do? When do we use it?
 It functions similarly to downcasting but for references and allows us to get an authorized reference that allows access to more specific information. We use it when we need to read metadata from a more specific type/resource.
 
-This last quest will be your most difficult yet. Take this contract:
-
+3. This last quest will be your most difficult yet. Take this contract:
+---
 CryptoPoops contract in 0x01
 ------------------------
 import NonFungibleToken from 0x02
