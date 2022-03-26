@@ -222,7 +222,7 @@ transaction (recipient : Address, name: String, favouriteFood: String, luckyNumb
 
     let publicReference = getAccount(recipient).getCapability(/public/Collection)
                           .borrow<&CryptoPoops.Collection{CryptoPoops.MyCollectionPublic}>()
-                          ?? panic("This account does not have a collection")
+                          ?? panic("This account does not have a Collection")
   
     publicReference.deposit(token: <- nftMinter.createNFT(name: name, favouriteFood: favouriteFood, luckyNumber: luckyNumber))
   }
